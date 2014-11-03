@@ -8,21 +8,23 @@ jur = ["---","--B-","--W--","-WW-","---"]
 jul = ["---","B---","-W---","-WW-","---"]
 test3 = ["WWW","-WW-","-----","-BB-","BBB"]
 
+
 --BOARD EVALUATION
 
-{-getBoardScore board ?
-  | isWinForPlayer   = 10
-  | isWinForOpponent = -10
-  | otherwise        = do some other calculations
+getBoardScore board player
+  | isWin board player               = 10
+  | isWin board (getOpponent player) = -10
+  | otherwise                        = 0  --placeholder. should call another fn to calc score
 
---num opp pieces < N OR opp can't move (generateAllMoves returns empty list?)
-isWinForPlayer
+--determine if a player has won (opponent has lost n pieces OR opponent can't move)
+isWin :: [String] -> Char -> Bool
+isWin board player
+  | (numOppPieces <= (numStartPieces n) - n) || (null oppMoves) = True
+  | otherwise                                                   = False
+  where n = length (head board);
+        numOppPieces = length (getPlayerPos board (getOpponent player));
+        oppMoves = generateAllMoves board (getOpponent player)
 
-isWinForOpponent
-
-numStartPieces :: Int -> Int
-numStartPieces n = 2n + 1
--}
 
 --MOVE GENERATION
 
@@ -136,6 +138,12 @@ generateNewRow x y elem
   | y == 0	  = elem : (tail x)
   | otherwise = (head x) : generateNewRow (tail x) (y - 1) elem
 
+
+--MINIMAX
+
+--do stuff here
+
+
 --HELPERS
 
 --convert original board representation to a more readable representation
@@ -151,9 +159,19 @@ convertToNewRep' board n
   | otherwise  = (fst split) : convertToNewRep' (snd split) (n - 1)
   where split = splitAt n board
 
---convert our board representation to original representation
+--convert our board representation to the original representation
 convertToOldRep :: [String] -> String
 convertToOldRep board = concat board
+
+--get the opponent's color
+getOpponent :: Char -> Char
+getOpponent player
+  | player == 'W' = 'B'
+  | otherwise     = 'W'
+
+--calculate the number of starting pieces for a player
+numStartPieces :: Int -> Int
+numStartPieces n = (2 * n) - 1
 
 --get all board positions (x,y) for a given player
 getPlayerPos :: [String] -> Char -> [(Int, Int)]
@@ -190,8 +208,3 @@ filterOut elem list
   | null list           = []
   | (head list) == elem = filterOut elem (tail list)
   | otherwise           = (head list) : filterOut elem (tail list)
-
-getOpponent :: Char -> Char
-getOpponent player
-  | player == 'W' = 'B'
-  | otherwise     = 'W'
