@@ -59,13 +59,13 @@ slideHorizontalLeft board x y player
 
 jumpHorizontalRight:: [String] -> Int -> Int -> Char -> [String]
 jumpHorizontalRight board x y player
-  | getElem board (y + 1) y == player && (getElem board x (y + 2) == '-' || getElem board x (y + 2)) == getOpponent player = generateNewBoard (generateNewBoard board x y '-') x (y + 2) player
-  | otherwise                                                                       = board
+  | getElem board x (y + 1) == player && (getElem board x (y + 2) == '-' || getElem board x (y + 2)) == getOpponent player = generateNewBoard (generateNewBoard board x y '-') x (y + 2) player
+  | otherwise = board
 
 jumpHorizontalLeft :: [String] -> Int -> Int -> Char -> [String]
 jumpHorizontalLeft board x y player
-  | getElem board (y - 1) y == player && (getElem board x (y - 2) == '-' || getElem board x (y - 2)) == getOpponent player = generateNewBoard (generateNewBoard board x y '-') x (y - 2) player
-  | otherwise                                                                       = board
+  | getElem board x (y - 1) == player && (getElem board x (y - 2) == '-' || getElem board x (y - 2)) == getOpponent player = generateNewBoard (generateNewBoard board x y '-') x (y - 2) player
+  | otherwise = board
 
 slideUpRight :: [String] -> Int -> Int -> Char -> [String]
 slideUpRight board x y player
