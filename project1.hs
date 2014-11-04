@@ -59,12 +59,12 @@ slideHorizontalLeft board x y player
 
 jumpHorizontalRight:: [String] -> Int -> Int -> Char -> [String]
 jumpHorizontalRight board x y player
-  | getElem board x (y + 2) == '-' || getElem board x (y + 2) == getOpponent player = generateNewBoard (generateNewBoard board x y '-') x (y + 2) player
+  | getElem board (y + 1) y == player && (getElem board x (y + 2) == '-' || getElem board x (y + 2)) == getOpponent player = generateNewBoard (generateNewBoard board x y '-') x (y + 2) player
   | otherwise                                                                       = board
 
 jumpHorizontalLeft :: [String] -> Int -> Int -> Char -> [String]
 jumpHorizontalLeft board x y player
-  | getElem board x (y - 2) == '-' || getElem board x (y - 2) == getOpponent player = generateNewBoard (generateNewBoard board x y '-') x (y - 2) player
+  | getElem board (y - 1) y == player && (getElem board x (y - 2) == '-' || getElem board x (y - 2)) == getOpponent player = generateNewBoard (generateNewBoard board x y '-') x (y - 2) player
   | otherwise                                                                       = board
 
 slideUpRight :: [String] -> Int -> Int -> Char -> [String]
@@ -147,6 +147,7 @@ generateNewRow x y elem
 --HELPERS
 
 --convert original board representation to a more readable representation
+--e.g., "WWW-WW-------BB-BBB" -> ["---","-WW-","--W--","WWWW","BBB"]
 convertToNewRep :: String -> Int -> Int -> [String]
 convertToNewRep board n n'
   | n' >= (n * 2 - 1) = (fst split) : convertToNewRep' (snd split) (n' - 1)
@@ -160,6 +161,7 @@ convertToNewRep' board n
   where split = splitAt n board
 
 --convert our board representation to the original representation
+--e.g., ["---","-WW-","--W--","WWWW","BBB"] -> "WWW-WW-------BB-BBB"
 convertToOldRep :: [String] -> String
 convertToOldRep board = concat board
 
@@ -191,7 +193,7 @@ getPlayerPosInRow' row player rowNum colNum
   | (head row) == player = (rowNum, colNum) : getPlayerPosInRow' (tail row) player rowNum (colNum + 1)
   | otherwise            = getPlayerPosInRow' (tail row) player rowNum (colNum + 1)
 
---get the elem at position (x,y) on the board; returns '?' if (x,y) is out of bounds
+--get the elem at position (x,y) on the board; return '?' if (x,y) is out of bounds
 getElem :: [String] -> Int -> Int -> Char
 getElem board x y
   | x < 0                                                      = '?'
