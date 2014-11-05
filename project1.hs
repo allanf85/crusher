@@ -25,7 +25,13 @@ isWin board player
         numOppPieces = length (getPlayerPos board (getOpponent player));
         oppMoves = generateAllMoves board (getOpponent player)
 
-
+--add board with New Rep to history with Old Rep
+boardHistory :: [String] -> [String] -> [String]
+boardHistory board history
+	| isPreviousBoard board history == False	= (convertToOldRep board) : history 
+	| otherwise								 	= history
+	
+		
 --MOVE GENERATION
 
 generateAllMoves :: [String] -> Char -> [[String]]
@@ -165,6 +171,13 @@ convertToNewRep' board n
 convertToOldRep :: [String] -> String
 convertToOldRep board = concat board
 
+--determine if board with New Rep has been seen before
+isPreviousBoard :: [String] -> [String] -> Bool
+isPreviousBoard board history
+	| null history								= False
+	| (convertToOldRep board) == head history 	= True
+	| otherwise									= isPreviousBoard board (tail history)
+	
 --get the opponent's color
 getOpponent :: Char -> Char
 getOpponent player
