@@ -5,10 +5,11 @@
 --"WWW-WW-------BB-BBB"
 --crusher ex 'B' 1 3
 ex = ["WW--W----B--B-B----"]
-ex2 = ["BBB-W----W------W-B","BBB-W----W--W-----B"]
+ex2 = ["BBB-W----W------W-B"]
+ex2b = ["BBB","-W--","--W--","----","W-B"]
 ex3 = ["WW-AAAAAAWBAAAAABB-"]
---getBoardTuples (generateAllNewMoves ex3b [ex3b] 'W') [ex3b] 'W' 4 []
-ex3b = ["WW-","AAAA","AAWBA","AAAA","BB-"]
+--getBoardTuples (generateAllNewMoves ex3b [ex3b] 'W') [ex3b] 'W' 3 []
+ex3b = ["AW-","AAAA","BWAWB","AAAA","AB-"]
 ex3c = ["WW-","AAAA","A-WBA","AAAA","BB-"]
 ex4 = ["----WW---W--WWWWBBB","----WW---W--WWWWBBB"]
 blah = ["---","-WW-","--W--","WWW-","BBB"]
@@ -18,6 +19,7 @@ test5 = ["-----aaaaaa-------aaaaaaaa---------bbbbbbbb-------bbbbb-----","-----aa
 
 --TOP-LEVEL FUNCTION
 
+--precondition: depth > 0
 crusher :: [String] -> Char -> Int -> Int -> [String]
 crusher boards player depth n = crusher' (head newRepBoards) newRepBoards player depth
                                 where newRepBoards = convertBoardsToNewRep boards n
@@ -32,10 +34,15 @@ crusher' board history player depth
 --BOARD EVALUATION
 
 --get the "goodness" of a board for a given player
-getBoardScore :: [String] -> [[String]] -> Char -> Int
-getBoardScore board history player
-  | isWin board history player               = 100
+getBoardScoreMax :: [String] -> [[String]] -> Char -> Int
+getBoardScoreMax board history player
   | isWin board history (getOpponent player) = -100
+  | otherwise                                = calcBoardScore board player
+
+--get the "goodness" of a board for a given player
+getBoardScoreMin :: [String] -> [[String]] -> Char -> Int
+getBoardScoreMin board history player
+  | isWin board history player               = 100
   | otherwise                                = calcBoardScore board player
 
 --determine if a player has won (opponent has lost n pieces OR opponent can't move)
@@ -193,12 +200,13 @@ getBoardTuples boards history player depth tuples
 getBoardTuple :: [String] -> [[String]] -> Char -> Int -> ([String], Int)
 getBoardTuple board history player depth = (board, (minimax board (board : history) player (depth - 1) False))
 
---minimax algorithm; get the board score at terminal leaves (depth=0 or game is over)
+--minimax algorithm; get the board score at terminal leaves (depth=0 or other player has won)
 minimax :: [String] -> [[String]] -> Char -> Int -> Bool -> Int
 minimax board history player depth isMax
-  | depth == 0                                        = getBoardScore board history player
-  | isMax && isWin board history (getOpponent player) = getBoardScore board history player
-  | not isMax && isWin board history player           = getBoardScore board history player
+  | depth == 0 && isMax                               = getBoardScoreMax board history player
+  | depth == 0 && not isMax                           = getBoardScoreMin board history player
+  | isMax && isWin board history (getOpponent player) = getBoardScoreMax board history player
+  | not isMax && isWin board history player           = getBoardScoreMin board history player
   | isMax     = maximum (minimax' (generateAllNewMoves board history player) history player (depth - 1) False)
   | otherwise = minimum (minimax' (generateAllNewMoves board history (getOpponent player)) history player (depth - 1) True)
 
